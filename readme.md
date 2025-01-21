@@ -7,7 +7,7 @@
 - [GETTING STARTED](#getting-started)
 
 ## INTRODUCTION
-Dans un monde où les volumes de données augmentent de manière exponentielle, leurs collectes deviennent des enjeux cruciaux. Ce script Python se positionne comme un outil clé dans cette démarche, en automatisant la récupération de données à partir d’une URL (qu’elle provienne d’une API REST, GraphQL ou d’un autre endpoint web) et leur transformation au format Parquet, reconnu pour sa performance en termes de compression et de lecture.  
+Dans un monde où les volumes de données augmentent de manière exponentielle, leurs collectes deviennent des enjeux cruciaux. Ce script Python se positionne comme un outil clé dans cette démarche, en automatisant la récupération de données à partir d’une URL (qu’elle provienne d’une API REST ou d’un autre endpoint web) et leur transformation au format Parquet, reconnu pour sa performance en termes de compression et de lecture.  
 Grâce à l'utilisation de la bibliothèque Polars, réputée pour sa rapidité et sa gestion efficace des données tabulaires, ce script garantit un traitement fluide, performant et évolutif, même pour des ensembles de données volumineux.  
 Les fonctionnalités incluent :
 - La récupération des données à partir d’une source en ligne via une URL (avec prise en charge des formats JSON ou CSV).
