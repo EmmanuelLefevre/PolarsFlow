@@ -44,6 +44,7 @@ pip --version
 
 ## REQUIREMENTS
 - Pandas
+- Pyarrow
 - Python-dotenv
 - Requests
 
