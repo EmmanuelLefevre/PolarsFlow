@@ -12,7 +12,8 @@ Grâce à l'utilisation de la bibliothèque Polars, réputée pour sa rapidité 
 Les fonctionnalités incluent :
 - La récupération des données à partir d’une source en ligne via une URL (avec prise en charge des formats JSON ou CSV).
 - La transformation des données brutes en un modèle structuré et optimisé.
-- L’export des données transformées au format Parquet, prêt à être utilisé pour des pipelines d'analyse ou de traitement avancé.  
+- L’export des données transformées au format Parquet, prêt à être utilisé pour des pipelines d'analyse ou de traitement avancé.
+- La possibilité d'ajouter un token d'authentification à la requête, si cela est nécessaire, afin d'accéder aux données.  
 Cet outil est idéal pour les développeurs, data engineers ou analystes cherchant à automatiser la gestion de leurs flux de données tout en maximisant la performance et la fluidité des opérations.
 
 ## PYTHON
