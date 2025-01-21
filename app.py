@@ -47,13 +47,15 @@ def get_secret_token():
 ##### Fonction pour choisir l'URL à scrapper #####
 ##################################################
 def api_call():
-  # Saisie de l'URL
-  url = input("Entrez l'URL de l'API que vous souhaitez scrapper : ").strip()
+  while True:
+    # Saisie de l'URL
+    url = input("Entrez l'URL de l'API que vous souhaitez scrapper : ").strip()
 
-  # Vérification de l'URL
-  if not (url.startswith("https://") or url.startswith("http://")):
-    print("💣 URL invalide !")
-    return
+    # Vérification de l'URL
+    if not (url.startswith("https://") or url.startswith("http://")):
+      print("💣 URL invalide !")
+      continue
+    break
 
   try:
     token = get_secret_token()
