@@ -43,12 +43,8 @@ def get_secret_token():
     print("💣 Aucun token trouvé dans le fichier .env.")
     response = input("🏁 Avez-vous un secret token secret à fournir ? (O/n) : ").strip().lower()
 
-    if response == "n":
-      raise ValueError("💣 Vous devez fournir un token pour continuer !")
-
-    token = input("Entrez votre secret token : ").strip()
-    if not token:
-      raise ValueError("💣 Token requis pour continuer !")
+    if response in ["o", ""]:
+      token = input("Entrez votre secret token : ").strip()
 
   return token
 
