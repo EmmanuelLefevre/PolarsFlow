@@ -2,8 +2,10 @@ import requests
 import os
 import sys
 from dotenv import load_dotenv
+import pandas as pd
+import pyarrow.parquet as pq
 from tkinter import Tk
-from tkinter.filedialog import askopenfilename, asksaveasfilename
+from tkinter.filedialog import asksaveasfilename
 
 
 
@@ -52,46 +54,109 @@ def get_secret_token():
 
 
 
+########################################################
+##### Fonction pour enregistrer le fichier Parquet #####
+########################################################
+def save_file(df):
+  try:
+    print("📂 Veuillez sélectionner un emplacement pour sauvegarder le fichier.")
+    save_path = asksaveasfilename(
+      title="Enregistrer le fichier Parquet",
+      defaultextension=".parquet",
+      filetypes=[("Fichiers Parquet", "*.parquet")],
+      initialdir=os.path.join(os.getcwd(), "data_frame")
+    )
+
+    if save_path:
+      # Ajouter automatiquement l'extension ".parquet" si absente
+      if not save_path.endswith(".parquet"):
+        save_path += ".parquet"
+
+      # Extraire le nom de fichier et l'extension
+      filename, extension = os.path.splitext(os.path.basename(save_path))
+
+      # Sauvegarder le DataFrame au chemin sélectionné
+      df.to_parquet(save_path, engine="pyarrow", index=False)
+      print("\n")
+      print(f"📄 {filename}{extension} enregistré sous: {save_path}")
+    else:
+      print("❌ Aucune sauvegarde effectuée. Programme terminé.")
+
+  except PermissionError:
+    print("💣 Fichier ouvert, assurez-vous que celui-ci est fermé !")
+
+  except Exception as e:
+    print(f"💣 Erreur lors de la sauvegarde : {e}")
+
+
+
+######################################################
+##### Fonction pour convertir le JSON en Parquet #####
+######################################################
+def convert_json_to_parquet(json_data):
+  try:
+    # Vérifier si le JSON est bien une liste ou un dictionnaire
+    if not isinstance(json_data, (list, dict)):
+      raise ValueError("💣 Les données JSON doivent être une liste ou un dictionnaire !")
+
+    # Convertir le JSON en DataFrame Pandas
+    df = pd.DataFrame(json_data)
+
+    # Enregistrer le fichier
+    save_file(df)
+
+  except ValueError as ve:
+    print(f"💣 Erreur de conversion : {ve}")
+  except Exception as e:
+    print(f"💥 Une erreur s'est produite : {e}")
+
+
+
 ##################################################
 ##### Fonction pour choisir l'URL à scrapper #####
 ##################################################
 def api_call():
   while True:
-    # Saisie de l'URL
-    url = input("Entrez l'URL de l'API que vous souhaitez scrapper ('fin' pour quitter) : ").strip()
+    if 'invalid_url' not in locals():
+      prompt_message = "Entrez l'URL de l'API que vous souhaitez scrapper ('fin' pour quitter) : "
+    else:
+      prompt_message = "Saisir une autre URL ('fin' pour quitter) : "
+
+    # Demander à l'utilisateur de saisir une URL
+    url = input(prompt_message).strip()
 
     if url.lower() == "fin":
       leave()
 
-    # Vérification de l'URL
     if not (url.startswith("https://") or url.startswith("http://")):
+      if 'invalid_url' not in locals():
+        invalid_url = True
       print("💣 URL invalide !")
-      url = input("Saisir une autre URL ('fin' pour quitter) : ").strip()
-      if url.lower() == "fin":
-        leave()
-      else:
-        continue
+      continue
+    # Si URL correcte => on sort de la boucle
     break
 
   try:
     token = get_secret_token()
 
-    # Ajout des en-têtes avec le token
+    # Ajout du header
     headers = {
       "Authorization": f"Bearer {token}",
-      "Accept": "application/vnd.github.v3+json"  # Version de l'API GitHub
+      "Accept": "application/vnd.github.v3+json"
     }
 
-    # Envoi de la requête GET
     response = requests.get(url, headers=headers)
 
-    # Vérification de la réponse
+    # Réponse
     if response.status_code == 200:
-      print("Succès ! Voici la réponse :")
-      print(response.json())
+      print("👌 Données récupérées...")
+      json_data = response.json()
+
+      # Appeler la fonction pour convertir en Parquet
+      convert_json_to_parquet(json_data)
     else:
-      print(f"Échec avec le code de statut {response.status_code} :")
-      print(response.json())
+      print(f"Échec avec le code de statut {response.status_code} : {response.text}")
+
   except ValueError as ve:
     print(ve)
   except requests.exceptions.RequestException as e:
