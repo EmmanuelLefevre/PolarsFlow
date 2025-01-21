@@ -4,7 +4,7 @@
 - [INTRODUCTION](#introduction)
 - [PYTHON](#python)
 - [REQUIREMENTS](#requirements)
-- [PROCEDURE](#procedure)
+- [GETTING STARTED](#getting-started)
 
 ## INTRODUCTION
 Dans un monde où les volumes de données augmentent de manière exponentielle, leurs collectes deviennent des enjeux cruciaux. Ce script Python se positionne comme un outil clé dans cette démarche, en automatisant la récupération de données à partir d’une URL (qu’elle provienne d’une API REST, GraphQL ou d’un autre endpoint web) et leur transformation au format Parquet, reconnu pour sa performance en termes de compression et de lecture.  
@@ -12,7 +12,7 @@ Grâce à l'utilisation de la bibliothèque Polars, réputée pour sa rapidité 
 Les principales fonctionnalités incluent :
 - La récupération des données à partir d’une source en ligne via une URL (avec prise en charge des formats JSON ou CSV).
 - La transformation des données brutes en un modèle structuré et optimisé.
-- L’export des données transformées au format Parquet, prêt à être utilisé pour des pipelines d'analyse ou de traitement avancé.
+- L’export des données transformées au format Parquet, prêt à être utilisé pour des pipelines d'analyse ou de traitement avancé.  
 Cet outil est idéal pour les développeurs, data engineers ou analystes cherchant à automatiser la gestion de leurs flux de données tout en maximisant la performance et la fluidité des opérations.
 
 ## PYTHON
@@ -43,11 +43,10 @@ pip --version
 ```
 
 ## REQUIREMENTS
-- Pandas
 - Python-dotenv
-- Tabulate
+- Requests
 
-## PROCEDURE
+## GETTING STARTED
 1. Installer les librairies (en local dans python)
 ```bash
 pip install -r requirements.txt
@@ -60,8 +59,7 @@ pip list
 ```bash
 cp .env.template .env
 ```
-3. Placer votre modèle de données .csv dans le dossier (data_frame) prévu à cet effet...
-4. Lancer l'application python
+3. Lancer l'application python
 ```bash
 python app.py
 ```
