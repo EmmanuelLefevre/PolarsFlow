@@ -43,6 +43,7 @@ pip --version
 ```
 
 ## REQUIREMENTS
+- Pandas
 - Python-dotenv
 - Requests
 
