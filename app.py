@@ -37,22 +37,26 @@ def leave():
 ###################################################
 ##### Fonction pour récupérer le secret token #####
 ###################################################
-def get_secret_token():
+def get_secret_token(url=None):
   token = os.getenv("SECRET_TOKEN")
 
   if token == "":
     print("💣 Ce token n'a pas de valeur définie !")
-    set_secret_token()
+    set_secret_token(url)
+    token = os.getenv("SECRET_TOKEN")
 
   if not token:
     print("💣 Aucun token trouvé dans le fichier .env.")
-    response = input("🏁 Avez-vous un token à renseigner ? (O/n) : ").strip().lower()
+    response = input("🏁 Avez-vous un token à renseigner ? (O/n/e=enregistrer) : ").strip().lower()
 
-    if response in ["o", ""]:
+    if response == "e":
+      set_secret_token(url)
+      token = os.getenv("SECRET_TOKEN")
+
+    elif response in ["o", ""]:
       token = input("Entrez votre token : ").strip()
 
   return token
-
 
 
 ####################################################
@@ -83,17 +87,18 @@ def set_secret_token(url=None):
       token_exists = False
       for line in lines:
         if line.startswith("SECRET_TOKEN="):
-          new_lines.append(f"SECRET_TOKEN={secret_token}\n")
+          new_lines.append(f"SECRET_TOKEN={secret_token}")
           token_exists = True
-          break
+        else:
+          new_lines.append(line)
 
       # Si token n'existe pas => l'ajouter
       if not token_exists:
-        lines.append(f"SECRET_TOKEN={secret_token}\n")
+        new_lines.append(f"SECRET_TOKEN={secret_token}")
 
-      # Réécrire le fichier .env
+      # Si .env modifié => réécrire fichier
       with open(".env", "w") as f:
-        f.writelines(lines)
+        f.writelines(new_lines)
 
       # Enregistrer token dans .env
       os.environ["SECRET_TOKEN"] = secret_token
@@ -195,7 +200,7 @@ def api_call(url=None):
       break
 
     try:
-      token = get_secret_token()
+      token = get_secret_token(url)
 
       # Ajout du header
       headers = {
@@ -216,6 +221,10 @@ def api_call(url=None):
       elif response.status_code == 401:
         print("💥 Unauthorized request ! Essayez avec un token...")
         set_secret_token(url)
+        return
+
+      elif response.status_code == 404:
+        print("👀 404 not found !")
         return
 
       else:
@@ -243,7 +252,7 @@ if __name__ == "__main__":
   try:
     main()
   except KeyboardInterrupt:
-    print(f"\n💥 Opération interrompue par l'utilisateur. Programme terminé.")
+    print(f"\n⚰️ Opération interrompue par l'utilisateur. Programme terminé.")
   finally:
     tkInstance.quit()
     tkInstance.destroy()
