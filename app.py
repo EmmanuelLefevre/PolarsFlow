@@ -79,6 +79,9 @@ def set_secret_token():
       # Quitter la boucle si un token est saisi
       break
 
+  # Relancer la requête
+  api_call()
+
 
 
 ########################################################
@@ -176,13 +179,18 @@ def api_call():
 
     response = requests.get(url, headers=headers)
 
-    # Réponse
+    # Response
     if response.status_code == 200:
       print("👌 Données récupérées...")
       json_data = response.json()
 
       # Appeler la fonction pour convertir en Parquet
       convert_json_to_parquet(json_data)
+
+    elif response.status_code == 401:
+      set_secret_token()
+      return
+
     else:
       print(f"Échec avec le code de statut {response.status_code} : {response.text}")
 
