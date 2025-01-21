@@ -207,35 +207,52 @@ def api_call(url=None):
         "Accept": "application/vnd.github.v3+json"
       }
 
-      response = requests.get(url, headers=headers)
+      # Initialiser la page actuelle à 1
+      page = 1
+      results = []
 
-      # Response
-      if response.status_code == 200:
-        print("👌 Données récupérées...")
-        json_data = response.json()
+      while True:
+        # Ajouter paramètre de pagination à l'URL
+        paginated_url = f"{url}?page={page}&per_page=100"
 
-        # Appeler la fonction pour convertir en Parquet
-        convert_json_to_parquet(json_data)
+        response = requests.get(paginated_url, headers=headers)
 
-        # Après l'enregistrement du fichier, demander une nouvelle URL
-        response = input("Souhaitez-vous saisir une nouvelle URL ? (O/n) : ").strip().lower()
+        # Response
+        if response.status_code == 200:
+          print("👌 Données récupérées...")
+          json_data = response.json()
+          # Ajouter les contributeurs de la page actuelle à la liste globale
+          results.extend(json_data)
 
-        if response == "n":
-          leave()
+          # Vérifier si une autre page existe
+          if 'next' in response.links:
+            # Incrémentation => page suivante
+            page += 1
+          else:
+            break
+
+        elif response.status_code == 401:
+          print("💥 Unauthorized request ! Essayez avec un token...")
+          set_secret_token(url)
+          return
+
+        elif response.status_code == 404:
+          print("👀 404 not found !")
+          return
+
         else:
-          api_call()
+          print(f"Échec avec le code de statut {response.status_code} : {response.text}")
 
-      elif response.status_code == 401:
-        print("💥 Unauthorized request ! Essayez avec un token...")
-        set_secret_token(url)
-        return
+      # Appeler la fonction pour convertir en Parquet
+      convert_json_to_parquet(results)
 
-      elif response.status_code == 404:
-        print("👀 404 not found !")
-        return
+      # Après l'enregistrement du fichier, demander une nouvelle URL
+      response = input("Souhaitez-vous saisir une nouvelle URL ? (O/n) : ").strip().lower()
 
+      if response == "n":
+        leave()
       else:
-        print(f"Échec avec le code de statut {response.status_code} : {response.text}")
+        api_call()
 
     except ValueError as ve:
       print(ve)
