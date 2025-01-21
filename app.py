@@ -75,8 +75,6 @@ def api_call():
 
   try:
     token = get_secret_token()
-    # Saisie du token secret
-    token = input("Entrez votre token secret GitHub : ").strip()
 
     # Ajout des en-têtes avec le token
     headers = {
