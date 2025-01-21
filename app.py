@@ -1,9 +1,10 @@
-import requests
 import os
+import requests
 import sys
-from dotenv import load_dotenv
 import pandas as pd
-import pyarrow.parquet as pq
+# import pyarrow.parquet as pq
+
+from dotenv import load_dotenv
 from tkinter import Tk
 from tkinter.filedialog import asksaveasfilename
 
@@ -18,6 +19,9 @@ load_dotenv()
 # Créer instance de Tk
 tkInstance = Tk()
 tkInstance.withdraw()
+
+# Variable globale pour stocker l'URL
+last_url = None
 
 
 
@@ -37,7 +41,7 @@ def get_secret_token():
   token = os.getenv("SECRET_TOKEN")
 
   if token == "":
-    raise ValueError("💣 Token vide !")
+    print("💣 Token vide !")
 
   if not token:
     print("💣 Aucun token trouvé dans le fichier .env.")
@@ -53,7 +57,10 @@ def get_secret_token():
 ####################################################
 ##### Fonction pour renseigner un secret token #####
 ####################################################
-def set_secret_token():
+def set_secret_token(url):
+  global last_url
+  last_url = url
+
   while True:
     secret_token = input("💥 Unauthorized request ! Entrez un secret token ('fin' pour quitter) : ").strip()
 
@@ -76,7 +83,7 @@ def set_secret_token():
       break
 
   # Relancer la requête
-  api_call()
+  api_call(last_url)
 
 
 
@@ -141,59 +148,62 @@ def convert_json_to_parquet(json_data):
 ##################################################
 ##### Fonction pour choisir l'URL à scrapper #####
 ##################################################
-def api_call():
-  invalid_url = False
+def api_call(url=None):
+  global last_url
 
-  while True:
-    if not invalid_url:
-      prompt_message = "Entrez l'URL de l'API que vous souhaitez scrapper ('fin' pour quitter) : "
-    else:
-      prompt_message = "Saisir une autre URL ('fin' pour quitter) : "
+  if url is None:
+    invalid_url = False
 
-    # Demander à l'utilisateur de saisir une URL
-    url = input(prompt_message).strip()
-
-    if url.lower() == "fin":
-      leave()
-
-    if not (url.startswith("https://") or url.startswith("http://")):
+    while True:
       if not invalid_url:
-        invalid_url = True
-      print("💣 URL invalide !")
-      continue
-    # Si URL correcte => on sort de la boucle
-    break
+        prompt_message = "Entrez l'URL de l'API que vous souhaitez scrapper ('fin' pour quitter) : "
+      else:
+        prompt_message = "Saisir une autre URL ('fin' pour quitter) : "
 
-  try:
-    token = get_secret_token()
+      # Demander à l'utilisateur de saisir une URL
+      url = input(prompt_message).strip()
 
-    # Ajout du header
-    headers = {
-      "Authorization": f"Bearer {token}",
-      "Accept": "application/vnd.github.v3+json"
-    }
+      if url.lower() == "fin":
+        leave()
 
-    response = requests.get(url, headers=headers)
+      if not (url.startswith("https://") or url.startswith("http://")):
+        if not invalid_url:
+          invalid_url = True
+        print("💣 URL invalide !")
+        continue
+      # Si URL correcte => on sort de la boucle
+      break
 
-    # Response
-    if response.status_code == 200:
-      print("👌 Données récupérées...")
-      json_data = response.json()
+    try:
+      token = get_secret_token()
 
-      # Appeler la fonction pour convertir en Parquet
-      convert_json_to_parquet(json_data)
+      # Ajout du header
+      headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github.v3+json"
+      }
 
-    elif response.status_code == 401:
-      set_secret_token()
-      return
+      response = requests.get(url, headers=headers)
 
-    else:
-      print(f"Échec avec le code de statut {response.status_code} : {response.text}")
+      # Response
+      if response.status_code == 200:
+        print("👌 Données récupérées...")
+        json_data = response.json()
 
-  except ValueError as ve:
-    print(ve)
-  except requests.exceptions.RequestException as e:
-    print(f"Erreur lors de l'appel à l'API : {e}")
+        # Appeler la fonction pour convertir en Parquet
+        convert_json_to_parquet(json_data)
+
+      elif response.status_code == 401:
+        set_secret_token(url)
+        return
+
+      else:
+        print(f"Échec avec le code de statut {response.status_code} : {response.text}")
+
+    except ValueError as ve:
+      print(ve)
+    except requests.exceptions.RequestException as e:
+      print(f"Erreur lors de l'appel à l'API : {e}")
 
 
 
