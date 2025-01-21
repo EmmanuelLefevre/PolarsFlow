@@ -221,7 +221,7 @@ def api_call(url=None):
         if response.status_code == 200:
           print("👌 Données récupérées...")
           json_data = response.json()
-          # Ajouter les contributeurs de la page actuelle à la liste globale
+          # Ajouter les résultats de la page actuelle à la liste globale
           results.extend(json_data)
 
           # Vérifier si une autre page existe
