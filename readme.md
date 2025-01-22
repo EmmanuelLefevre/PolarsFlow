@@ -58,18 +58,19 @@ pip --version
 ```bash
 pip install -r requirements.txt
 ```
-Vérifier l'installation des librairies
+2. Vérifier l'installation des librairies
 ```bash
 pip list
 ```
-2. Lancer l'application python
+3. Lancer l'application python
 ```bash
 python app.py
 ```
-3. URL de test permettant de récupérer tous les contributeurs du projet VsCode sur github.com
+4. URL de test permettant de récupérer tous les contributeurs du projet VsCode sur github.com
 ```bash
 https://api.github.com/repos/microsoft/vscode/contributors
 ```
+5. Le Data Frame de l'exemple au dessus est disponible dans le dossier "data_frame".
 
 ***
 
