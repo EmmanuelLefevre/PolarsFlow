@@ -141,7 +141,10 @@ def save_file(temp_parquet_path):
       # Extraire le nom de fichier et l'extension
       filename, extension = os.path.splitext(os.path.basename(save_path))
 
-      print(f"{Style.BRIGHT}{Fore.GREEN}📄 {filename}{extension} enregistré sous: {save_path}{Style.RESET_ALL}")
+      # Extraire path
+      folder_path = os.path.dirname(save_path)
+
+      print(f"{Style.BRIGHT}{Fore.GREEN}📄 {filename}{extension} enregistré sous => {folder_path}/{Style.RESET_ALL}")
     else:
       print(f"{Style.BRIGHT}{Fore.RED}❌ Sauvegarde annulée par l'utilisateur...{Style.RESET_ALL}")
 
