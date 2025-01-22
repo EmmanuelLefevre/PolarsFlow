@@ -304,7 +304,7 @@ def api_call(url=None):
       # Ajout du header
       headers = {
         "Authorization": f"Bearer {token}",
-        "Accept": "application/vnd.github.v3+json"
+        "Accept": "application/json, application/csv"
       }
 
       # Initialiser la page actuelle à 1
