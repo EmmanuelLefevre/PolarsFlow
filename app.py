@@ -4,6 +4,7 @@ import sys
 import pandas as pd
 # import pyarrow.parquet as pq
 
+from colorama import Fore, Style, init
 from dotenv import load_dotenv
 from tkinter import Tk
 from tkinter.filedialog import asksaveasfilename
@@ -23,13 +24,16 @@ tkInstance.withdraw()
 # Variable globale pour stocker l'URL
 last_url = None
 
+# Initialiser colorama
+init()
+
 
 
 ##############################################
 ##### Fonction pour quitter le programme #####
 ##############################################
 def leave():
-  print("👋 Programme terminé.")
+  print(f"{Style.BRIGHT}{Fore.BLUE}👋 Programme terminé.{Style.RESET_ALL}")
   sys.exit(0)
 
 
@@ -41,12 +45,12 @@ def get_secret_token(url=None):
   token = os.getenv("SECRET_TOKEN")
 
   if token == "":
-    print("💣 Ce token n'a pas de valeur définie !")
+    print(f"{Style.BRIGHT}{Fore.RED}💣 Ce token n'a pas de valeur définie !{Style.RESET_ALL}")
     set_secret_token(url)
     token = os.getenv("SECRET_TOKEN")
 
   if not token:
-    print("💣 Aucun token trouvé dans le fichier .env.")
+    print(f"{Style.BRIGHT}{Fore.RED}💣 Aucun token trouvé dans le fichier .env !{Style.RESET_ALL}")
     response = input("🏁 Avez-vous un token à renseigner ? (O/n/e=enregistrer) : ").strip().lower()
 
     if response == "e":
@@ -54,7 +58,7 @@ def get_secret_token(url=None):
       token = os.getenv("SECRET_TOKEN")
 
     elif response in ["o", ""]:
-      token = input("Entrez votre token : ").strip()
+      token = input("💬 Entrez votre token : ").strip()
 
   return token
 
@@ -67,7 +71,7 @@ def set_secret_token(url=None):
   last_url = url
 
   while True:
-    secret_token = input("Entrez votre token ('fin' pour quitter) : ").strip()
+    secret_token = input("💬 Entrez votre token ('fin' pour quitter) : ").strip()
 
     if secret_token.lower() == "fin":
       leave()
@@ -102,7 +106,7 @@ def set_secret_token(url=None):
 
       # Enregistrer token dans .env
       os.environ["SECRET_TOKEN"] = secret_token
-      print("✅ Token enregistré dans .env")
+      print(f"{Style.BRIGHT}{Fore.GREEN}✅ Token enregistré dans .env{Style.RESET_ALL}")
 
       # Quitter la boucle si un token est saisi
       break
@@ -135,15 +139,15 @@ def save_file(df):
 
       # Sauvegarder le DataFrame au chemin sélectionné
       df.to_parquet(save_path, engine="pyarrow", index=False)
-      print(f"📄 {filename}{extension} enregistré sous: {save_path}")
+      print(f"{Style.BRIGHT}{Fore.GREEN}📄 {filename}{extension} enregistré sous: {save_path}{Style.RESET_ALL}")
     else:
-      print("❌ Sauvegarde annulée par l'utilisateur...")
+      print(f"{Style.BRIGHT}{Fore.RED}❌ Sauvegarde annulée par l'utilisateur...{Style.RESET_ALL}")
 
   except PermissionError:
-    print("💣 Fichier ouvert, assurez-vous que celui-ci est fermé !")
+    print(f"{Style.BRIGHT}{Fore.RED}💣 Fichier ouvert, assurez-vous que celui-ci est fermé !{Style.RESET_ALL}")
 
   except Exception as e:
-    print(f"💣 Erreur lors de la sauvegarde : {e}")
+    print(f"{Style.BRIGHT}{Fore.RED}💣 Erreur lors de la sauvegarde : {e}{Style.RESET_ALL}")
 
 
 
@@ -154,7 +158,7 @@ def convert_json_to_parquet(json_data):
   try:
     # Vérifier si le JSON est bien une liste ou un dictionnaire
     if not isinstance(json_data, (list, dict)):
-      raise ValueError("💣 Les données JSON doivent être une liste ou un dictionnaire !")
+      raise ValueError(f"{Style.BRIGHT}{Fore.RED}💣 Les données JSON doivent être une liste ou un dictionnaire !{Style.RESET_ALL}")
 
     # Convertir le JSON en DataFrame Pandas
     df = pd.DataFrame(json_data)
@@ -163,9 +167,9 @@ def convert_json_to_parquet(json_data):
     save_file(df)
 
   except ValueError as ve:
-    print(f"💣 Erreur de conversion : {ve}")
+    print(f"{Style.BRIGHT}{Fore.RED}💣 Erreur de conversion : {ve}{Style.RESET_ALL}")
   except Exception as e:
-    print(f"💥 Une erreur s'est produite : {e}")
+    print(f"{Style.BRIGHT}{Fore.RED}💥 Une erreur s'est produite : {e}{Style.RESET_ALL}")
 
 
 
@@ -175,17 +179,17 @@ def convert_json_to_parquet(json_data):
 def get_results_per_page():
   while True:
     try:
-      results_per_page = input("Combien de résultats par requête souhaitez-vous récupérer ? (max 100) : ").strip()
+      results_per_page = input("💬 Combien de résultats par requête souhaitez-vous récupérer ? (max 100) : ").strip()
 
       # Vérification que l'entrée est un entier
       results_per_page = int(results_per_page)
       # Dans la limite de 100
       if results_per_page < 1 or results_per_page > 100:
-        print("💣 Saisir un nombre entre 1 et 100 !")
+        print(f"{Style.BRIGHT}{Fore.RED}💣 Saisir un nombre entre 1 et 100 !{Style.RESET_ALL}")
       else:
         return results_per_page
     except ValueError:
-      print("💣 Saisir entrer un nombre entier !")
+      print(f"{Style.BRIGHT}{Fore.RED}💣 Saisir entrer un nombre entier !{Style.RESET_ALL}")
 
 
 
@@ -200,9 +204,9 @@ def api_call(url=None):
 
     while True:
       if not invalid_url:
-        prompt_message = "Entrez l'URL de l'API que vous souhaitez scrapper ('fin' pour quitter) : "
+        prompt_message = "💬 Entrez l'URL de l'API que vous souhaitez scrapper ('fin' pour quitter) : "
       else:
-        prompt_message = "Saisir une autre URL ('fin' pour quitter) : "
+        prompt_message = "💬 Saisir une autre URL ('fin' pour quitter) : "
 
       # Demander à l'utilisateur de saisir une URL
       url = input(prompt_message).strip()
@@ -213,7 +217,7 @@ def api_call(url=None):
       if not (url.startswith("https://") or url.startswith("http://")):
         if not invalid_url:
           invalid_url = True
-        print("💣 URL invalide !")
+        print(f"{Style.BRIGHT}{Fore.RED}💣 URL invalide !{Style.RESET_ALL}")
         continue
       # Si URL correcte => on sort de la boucle
       break
@@ -242,7 +246,7 @@ def api_call(url=None):
 
         # Response
         if response.status_code == 200:
-          print(f"👌 Données récupérées... Page : {page}")
+          print(f"{Style.BRIGHT}{Fore.GREEN}👌 Données récupérées... Page : {page}{Style.RESET_ALL}")
           json_data = response.json()
           # Ajouter les résultats de la page actuelle à la liste globale
           results.extend(json_data)
@@ -255,22 +259,22 @@ def api_call(url=None):
             break
 
         elif response.status_code == 401:
-          print("💥 Unauthorized request ! Essayez avec un token...")
+          print(f"{Style.BRIGHT}{Fore.MAGENTA}💥 Unauthorized request ! Essayez avec un token...{Style.RESET_ALL}")
           set_secret_token(url)
           return
 
         elif response.status_code == 404:
-          print("👀 404 not found !")
+          print(f"{Style.BRIGHT}{Fore.MAGENTA}👀 404 not found !{Style.RESET_ALL}")
           return
 
         else:
-          print(f"Échec avec le code de statut {response.status_code} : {response.text}")
+          print(f"{Style.BRIGHT}{Fore.RED}Échec avec le code de statut {response.status_code} : {response.text}{Style.RESET_ALL}")
 
       # Appeler la fonction pour convertir en Parquet
       convert_json_to_parquet(results)
 
       # Après l'enregistrement du fichier, demander une nouvelle URL
-      response = input("Souhaitez-vous saisir une nouvelle URL ? (O/n) : ").strip().lower()
+      response = input("💬 Souhaitez-vous saisir une nouvelle URL ? (O/n) : ").strip().lower()
 
       if response == "n":
         leave()
@@ -280,7 +284,7 @@ def api_call(url=None):
     except ValueError as ve:
       print(ve)
     except requests.exceptions.RequestException as e:
-      print(f"Erreur lors de l'appel à l'API : {e}")
+      print(f"{Style.BRIGHT}{Fore.RED}Erreur lors de l'appel à l'API : {e}{Style.RESET_ALL}")
 
 
 
@@ -299,7 +303,7 @@ if __name__ == "__main__":
   try:
     main()
   except KeyboardInterrupt:
-    print(f"\n👋 Opération interrompue par l'utilisateur. Programme terminé.")
+    print(f"{Style.BRIGHT}{Fore.RED}👋 Opération interrompue par l'utilisateur. Programme terminé.{Style.RESET_ALL}")
   finally:
     tkInstance.quit()
     tkInstance.destroy()
