@@ -44,6 +44,7 @@ pip --version
 ```
 
 ## REQUIREMENTS
+- Colorama
 - Pandas
 - Pyarrow
 - Python-dotenv
