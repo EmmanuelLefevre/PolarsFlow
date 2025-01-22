@@ -66,11 +66,18 @@ pip list
 ```bash
 python app.py
 ```
-4. URL de test permettant de récupérer tous les contributeurs du projet VsCode sur github.com
+4. URL de test
+- JSON
+URL de test permettant de récupérer tous les contributeurs du projet VsCode sur github.com
 ```bash
 https://api.github.com/repos/microsoft/vscode/contributors
 ```
-5. Le fichier Parquet de l'exemple ci dessus est disponible dans le dossier "data_frame".
+- CSV
+URL de test permettant de récupérer la population américaine par année
+```bash
+https://datausa.io/api/data?drilldowns=Nation&measures=Population
+```
+5. Les fichiers Parquet des exemples ci dessus sont disponibles dans le dossier "data_frame".
 
 ***
 
