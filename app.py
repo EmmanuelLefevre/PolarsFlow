@@ -6,6 +6,7 @@ import pandas as pd
 
 from colorama import Fore, Style, init
 from dotenv import load_dotenv
+from io import StringIO
 from tkinter import Tk
 from tkinter.filedialog import asksaveasfilename
 
@@ -119,7 +120,7 @@ def set_secret_token(url=None):
 ########################################################
 ##### Fonction pour enregistrer le fichier Parquet #####
 ########################################################
-def save_file(df):
+def save_file(temp_parquet_path):
   try:
     print("📂 Sélectionner un emplacement pour sauvegarder le fichier.")
     save_path = asksaveasfilename(
@@ -134,11 +135,12 @@ def save_file(df):
       if not save_path.endswith(".parquet"):
         save_path += ".parquet"
 
+      # Copier le fichier temporaire à l'emplacement final
+      os.replace(temp_parquet_path, save_path)
+
       # Extraire le nom de fichier et l'extension
       filename, extension = os.path.splitext(os.path.basename(save_path))
 
-      # Sauvegarder le DataFrame au chemin sélectionné
-      df.to_parquet(save_path, engine="pyarrow", index=False)
       print(f"{Style.BRIGHT}{Fore.GREEN}📄 {filename}{extension} enregistré sous: {save_path}{Style.RESET_ALL}")
     else:
       print(f"{Style.BRIGHT}{Fore.RED}❌ Sauvegarde annulée par l'utilisateur...{Style.RESET_ALL}")
@@ -148,6 +150,11 @@ def save_file(df):
 
   except Exception as e:
     print(f"{Style.BRIGHT}{Fore.RED}💣 Erreur lors de la sauvegarde : {e}{Style.RESET_ALL}")
+
+  finally:
+    # Nettoyer le fichier temporaire
+    if os.path.exists(temp_parquet_path):
+      os.remove(temp_parquet_path)
 
 
 
@@ -163,13 +170,52 @@ def convert_json_to_parquet(json_data):
     # Convertir le JSON en DataFrame Pandas
     df = pd.DataFrame(json_data)
 
+    # Chemin temporaire
+    temp_parquet_path = os.path.join(os.getcwd(), "temp.parquet")
+
+    # Convertir en Parquet + enregistrer temporairement
+    df.to_parquet(temp_parquet_path, engine="pyarrow", index=False)
+
     # Enregistrer le fichier
-    save_file(df)
+    save_file(temp_parquet_path)
 
   except ValueError as ve:
     print(f"{Style.BRIGHT}{Fore.RED}💣 Erreur de conversion : {ve}{Style.RESET_ALL}")
   except Exception as e:
     print(f"{Style.BRIGHT}{Fore.RED}💥 Une erreur s'est produite : {e}{Style.RESET_ALL}")
+
+
+
+#####################################################
+##### Fonction pour convertir le CSV en Parquet #####
+#####################################################
+def convert_csv_to_parquet(csv_data):
+  try:
+    # Si CSV vide ou ne contient que des espaces
+    if not csv_data.strip():
+      print(f"{Style.BRIGHT}{Fore.RED}⚠️ Ce CSV est vide !{Style.RESET_ALL}")
+      return
+
+    # Convertir le CSV en DataFrame Pandas
+    df = pd.read_csv(StringIO(csv_data))
+
+    # Chemin temporaire pour le fichier Parquet
+    temp_parquet_path = os.path.join(os.getcwd(), "temp.parquet")
+
+    # Convertir en Parquet + enregistrer temporairement
+    df.to_parquet(temp_parquet_path, engine="pyarrow", index=False)
+
+    # Convertir en Parquet
+    df.to_parquet
+
+    # Enregistrer le fichier
+    save_file(temp_parquet_path)
+
+  except ValueError as ve:
+    print(f"{Style.BRIGHT}{Fore.RED}💣 Erreur de conversion : {ve}{Style.RESET_ALL}")
+  except Exception as e:
+    print(f"{Style.BRIGHT}{Fore.RED}💥 Une erreur s'est produite : {e}{Style.RESET_ALL}")
+
 
 
 
@@ -190,6 +236,33 @@ def get_results_per_page():
         return results_per_page
     except ValueError:
       print(f"{Style.BRIGHT}{Fore.RED}💣 Saisir entrer un nombre entier !{Style.RESET_ALL}")
+
+
+
+##############################################################
+##### Fonction pour déterminer le type de données reçues #####
+##############################################################
+def detect_data_format(response):
+  try:
+    # Tenter de parser les données en JSON
+    response.json()
+    print(f"{Style.BRIGHT}{Fore.GREEN}📄 Format détecté : JSON{Style.RESET_ALL}")
+    return "json"
+  except ValueError:
+    # Si ce n'est pas du JSON, on continue
+    pass
+
+  # Liste des délimiteurs courants pour le CSV
+  delimiters = [",", ";", "\t", "|", ":", "#", "/", "\\"]
+
+  # Vérifier si contenu CSV (par la présence de virgules ou délimiteurs)
+  content = response.text.strip()
+  if content and any(delim in content for delim in delimiters):
+    print(f"{Style.BRIGHT}{Fore.GREEN}📄 Format détecté : CSV{Style.RESET_ALL}")
+    return "csv"
+
+  # Si aucun format reconnu
+  raise ValueError(f"{Style.BRIGHT}{Fore.RED}💣 Format de données inconnu !{Style.RESET_ALL}")
 
 
 
@@ -235,21 +308,36 @@ def api_call(url=None):
       results_per_page = get_results_per_page()
       # Initialiser la page actuelle à 1
       page = 1
-      # Liste des résultats
-      results = []
+      # Liste des résultats JSON
+      json_results = []
+      # String données CSV
+      csv_results = ""
 
       while True:
         # Ajouter paramètre de pagination à l'URL
-        paginated_url = f"{url}?page={page}&per_page=={results_per_page}"
+        paginated_url = f"{url}?page={page}&per_page={results_per_page}"
 
         response = requests.get(paginated_url, headers=headers)
 
         # Response
         if response.status_code == 200:
           print(f"{Style.BRIGHT}{Fore.GREEN}👌 Données récupérées... Page : {page}{Style.RESET_ALL}")
-          json_data = response.json()
-          # Ajouter les résultats de la page actuelle à la liste globale
-          results.extend(json_data)
+
+          # Détecter le format des données
+          try:
+            data_format = detect_data_format(response)
+          except ValueError as ve:
+            print(f"{Style.BRIGHT}{Fore.RED}💣 Format non détecté : {ve}{Style.RESET_ALL}")
+            return
+
+          if data_format == "json":
+            json_data = response.json()
+            # Ajouter les résultats de la page actuelle à la liste globale
+            json_results.extend(json_data)
+
+          elif data_format == "csv":
+            # Ajouter le contenu CSV brut dans une chaîne
+            csv_results += response.text
 
           # Vérifier si une autre page existe
           if 'next' in response.links:
@@ -270,8 +358,11 @@ def api_call(url=None):
         else:
           print(f"{Style.BRIGHT}{Fore.MAGENTA}Échec avec le code de statut {response.status_code} : {response.text}{Style.RESET_ALL}")
 
-      # Appeler la fonction pour convertir en Parquet
-      convert_json_to_parquet(results)
+      # Appeler les fonctions de convertion en Parquet
+      if csv_results:
+        convert_csv_to_parquet(csv_results)
+      elif json_results:
+        convert_json_to_parquet(json_results)
 
       # Après l'enregistrement du fichier, demander une nouvelle URL
       response = input("💬 Souhaitez-vous saisir une nouvelle URL ? (O/n) : ").strip().lower()
@@ -309,16 +400,6 @@ if __name__ == "__main__":
     tkInstance.destroy()
     sys.exit(0)
 
-
-
-#####################################################
-##### Fonction pour convertir le CSV en Parquet #####
-#####################################################
-
-
-##############################################################
-##### Fonction pour déterminer le type de données reçues #####
-##############################################################
 
 
 ####################################################
