@@ -25,6 +25,12 @@ tkInstance.withdraw()
 # Variable globale pour stocker l'URL
 last_url = None
 
+# Variable globale pour initialiser la page
+page = 1
+
+# Variable globale pour le nombre de résultats par page
+results_per_page = None
+
 # Initialiser colorama
 init()
 
@@ -150,7 +156,6 @@ def save_file(temp_parquet_path):
 
   except PermissionError:
     print(f"{Style.BRIGHT}{Fore.RED}💣 Fichier ouvert, assurez-vous que celui-ci est fermé !{Style.RESET_ALL}")
-
   except Exception as e:
     print(f"{Style.BRIGHT}{Fore.RED}💣 Erreur lors de la sauvegarde : {e}{Style.RESET_ALL}")
 
@@ -221,24 +226,64 @@ def convert_csv_to_parquet(csv_data):
 
 
 
+######################################################################
+##### Fonction pour ajouter des paramètres de pagination à l'URL #####
+######################################################################
+def get_paginated_url(url):
+  response = input("💬 Souhaitez-vous ajouter des paramètres de pagination à l'URL ? (O/n) : ").strip().lower()
+
+  if response in ["o", ""]:
+    results_per_page_value = get_results_per_page()
+
+    return f"{url}?page={page}&per_page={results_per_page_value}"
+
+  # Sinon utiliser l'URL sans paramètres de pagination
+  else:
+    return url
+
+
 
 #################################################################
 ##### Fonction pour choisir le nombre de résultats par page #####
 #################################################################
 def get_results_per_page():
-  while True:
+  global results_per_page
+
+  # Si résultats par page non défini
+  if results_per_page is None:
     try:
-      results_per_page = input("💬 Combien de résultats par requête souhaitez-vous récupérer ? (max 100) : ").strip()
+      results_per_page_input = input("💬 Combien de résultats par requête souhaitez-vous récupérer ? (max 100) : ").strip()
 
       # Vérification que l'entrée est un entier
-      results_per_page = int(results_per_page)
+      results_per_page_input = int( results_per_page_input)
+
       # Dans la limite de 100
-      if results_per_page < 1 or results_per_page > 100:
+      if  results_per_page_input < 1 or  results_per_page_input > 100:
         print(f"{Style.BRIGHT}{Fore.RED}💣 Saisir un nombre entre 1 et 100 !{Style.RESET_ALL}")
+        return get_results_per_page()
       else:
+        results_per_page = results_per_page_input
         return results_per_page
+
     except ValueError:
-      print(f"{Style.BRIGHT}{Fore.RED}💣 Saisir entrer un nombre entier !{Style.RESET_ALL}")
+      print(f"{Style.BRIGHT}{Fore.RED}💣 Saisir un nombre entier !{Style.RESET_ALL}")
+      return get_results_per_page()
+
+  # Si déjà défini => retourner valeur existante
+  return results_per_page
+
+
+
+######################################################################
+##### Fonction pour extraire les données selon la structure JSON #####
+######################################################################
+def extract_data_according_json_structure(response_json):
+  # Si clé 'data' => on retourne son contenu
+  if "data" in response_json:
+    return response_json['data']
+
+  # Par défaut on retourne le JSON entier
+  return response_json
 
 
 
@@ -251,6 +296,7 @@ def detect_data_format(response):
     response.json()
     print(f"{Style.BRIGHT}{Fore.CYAN}📄 Format détecté : JSON{Style.RESET_ALL}")
     return "json"
+
   except ValueError:
     # Si ce n'est pas du JSON, on continue
     pass
@@ -265,7 +311,7 @@ def detect_data_format(response):
     return "csv"
 
   # Si aucun format reconnu
-  raise ValueError(f"{Style.BRIGHT}{Fore.RED}💣 Format de données inconnu !{Style.RESET_ALL}")
+  print(f"{Style.BRIGHT}{Fore.RED}💣 Format de données inconnu !{Style.RESET_ALL}")
 
 
 
@@ -274,13 +320,14 @@ def detect_data_format(response):
 ##################################################
 def api_call(url=None):
   global last_url
+  global page
 
   if url is None:
     invalid_url = False
 
     while True:
       if not invalid_url:
-        prompt_message = "💬 Entrez l'URL de l'API que vous souhaitez scrapper ('fin' pour quitter) : "
+        prompt_message = "🏁 Entrez l'URL de l'API que vous souhaitez scrapper ('fin' pour quitter) : "
       else:
         prompt_message = "💬 Saisir une autre URL ('fin' pour quitter) : "
 
@@ -307,10 +354,8 @@ def api_call(url=None):
         "Accept": "application/json, application/csv"
       }
 
-      # Initialiser la page actuelle à 1
+      # Initialiser la variable avant chaque boucle
       page = 1
-      # Nombre de résultats par page
-      results_per_page = get_results_per_page()
       # Si type de données déjà affiché
       data_type_detected = False
       # Liste des résultats JSON
@@ -318,10 +363,11 @@ def api_call(url=None):
       # String données CSV
       csv_results = ""
 
-      while True:
-        # Ajouter paramètre de pagination à l'URL
-        paginated_url = f"{url}?page={page}&per_page={results_per_page}"
+      # Obtenir URL avec ou sans paramètres de pagination
+      paginated_url = get_paginated_url(url)
 
+      while True:
+        print(f"🔍 Requête vers l'URL => {paginated_url}")
         response = requests.get(paginated_url, headers=headers)
 
         # Response
@@ -339,8 +385,12 @@ def api_call(url=None):
 
           if data_format == "json":
             json_data = response.json()
+
+            # Extraire les données selon la structure
+            extracted_data = extract_data_according_json_structure(json_data)
+
             # Ajouter les résultats de la page actuelle à la liste globale
-            json_results.extend(json_data)
+            json_results.extend(extracted_data)
 
           elif data_format == "csv":
             # Ajouter le contenu CSV brut dans une chaîne
@@ -350,6 +400,8 @@ def api_call(url=None):
           if 'next' in response.links:
             # Incrémentation => page suivante
             page += 1
+            # Actualiser URL avec nouveau numéro de page
+            paginated_url = f"{url}?page={page}&per_page={get_results_per_page()}"
           else:
             break
 
@@ -372,7 +424,7 @@ def api_call(url=None):
         convert_json_to_parquet(json_results)
 
       # Après l'enregistrement du fichier, demander une nouvelle URL
-      response = input("💬 Souhaitez-vous saisir une nouvelle URL ? (O/n) : ").strip().lower()
+      response = input("🏁 Souhaitez-vous saisir une nouvelle URL ? (O/n) : ").strip().lower()
 
       if response == "n":
         leave()
