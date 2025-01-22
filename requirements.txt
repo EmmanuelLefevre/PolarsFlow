@@ -1,3 +1,4 @@
+colorama
 pandas
 pyarrow
 python-dotenv
