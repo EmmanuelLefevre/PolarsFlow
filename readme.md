@@ -11,10 +11,13 @@ Dans un monde où les volumes de données augmentent de manière exponentielle, 
 Grâce à l'utilisation de la bibliothèque Polars, réputée pour sa rapidité et sa gestion efficace des données tabulaires, ce script garantit un traitement fluide, performant et évolutif, même pour des ensembles de données volumineux.  
 Les fonctionnalités incluent :
 - La récupération des données à partir d’une source en ligne via une URL (avec prise en charge des formats JSON ou CSV).
-- La transformation des données brutes en un modèle structuré et optimisé.
+- La transformation des données brutes en un modèle structuré et optimisé pour l'analyse ou le traitement.
 - L’export des données transformées au format Parquet, prêt à être utilisé pour des pipelines d'analyse ou de traitement avancé.
-- La possibilité d'ajouter un token d'authentification à la requête, si cela est nécessaire, afin d'accéder aux données.  
-Cet outil est idéal pour les développeurs, data engineers ou analystes cherchant à automatiser la gestion de leurs flux de données tout en maximisant la performance et la fluidité des opérations.
+- Ajouter d'un token d'authentification à la requête, si cela est nécessaire, afin d'accéder aux données.
+- De plus il est possible d'enregistrer ce token en variable d'environnement pour une utilisation ultérieure.  
+
+Cet outil est idéal pour les développeurs, data engineers ou analystes cherchant à automatiser la gestion de leurs flux de données. Il répond particulièrement bien aux besoins des projets nécessitant une gestion performante et évolutive des données tabulaires.  
+Le format Parquet est conçu pour s'intégrer efficacement avec un moteur comme PolarX (ou DuckDB), grâce à sa nature orientée colonne et à ses capacités avancées de compression.
 
 ## PYTHON
 [Télécharger Python 3.13.1](https://www.python.org/downloads/)  
