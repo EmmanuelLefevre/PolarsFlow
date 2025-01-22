@@ -299,7 +299,7 @@ if __name__ == "__main__":
   try:
     main()
   except KeyboardInterrupt:
-    print(f"\n⚰️ Opération interrompue par l'utilisateur. Programme terminé.")
+    print(f"\n👋 Opération interrompue par l'utilisateur. Programme terminé.")
   finally:
     tkInstance.quit()
     tkInstance.destroy()
