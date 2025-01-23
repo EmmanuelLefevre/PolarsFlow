@@ -89,6 +89,7 @@ https://data.nasa.gov/resource/gh4g-9sfh.csv?$limit=50000
 ## TO DO
 - Utiliser Polars à la place de panda
 - Ajouter un prompt pour utiliser ou pas le token existant
+- Ajouter fonction de contrôle champ de saisie faux
 
 ***
 
