@@ -213,9 +213,6 @@ def convert_csv_to_parquet(csv_data):
     # Convertir en Parquet + enregistrer temporairement
     df.to_parquet(temp_parquet_path, engine="pyarrow", index=False)
 
-    # Convertir en Parquet
-    df.to_parquet
-
     # Enregistrer le fichier
     save_file(temp_parquet_path)
 
@@ -459,9 +456,3 @@ if __name__ == "__main__":
     tkInstance.quit()
     tkInstance.destroy()
     sys.exit(0)
-
-
-
-####################################################
-##### Fonction pour utiliser le token existant #####
-####################################################
