@@ -15,7 +15,8 @@ Les fonctionnalités incluent :
 - La transformation des données brutes en un modèle structuré et optimisé pour l'analyse ou le traitement.
 - L’export des données transformées au format Parquet, prêt à être utilisé pour des pipelines d'analyse ou de traitement avancé.
 - Ajouter d'un token d'authentification à la requête, si cela est nécessaire, afin d'accéder aux données.
-- De plus il est possible d'enregistrer ce token en variable d'environnement pour une utilisation ultérieure.  
+- De plus il est possible d'enregistrer ce token en variable d'environnement pour une utilisation ultérieure.
+- Ajout du token dans le header fait planter le scrapping sur les météorites.  
 
 Cet outil est idéal pour les développeurs, data engineers ou analystes cherchant à automatiser la gestion de leurs flux de données. Il répond particulièrement bien aux besoins des projets nécessitant une gestion performante et évolutive des données tabulaires.
 
