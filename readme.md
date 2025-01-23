@@ -90,6 +90,10 @@ https://data.nasa.gov/resource/gh4g-9sfh.csv?$limit=50000
 - Utiliser Polars à la place de panda
 - Ajouter un prompt pour utiliser ou pas le token existant
 - Ajouter fonction de contrôle champ de saisie faux
+- Redemander le nombre de résultats à récupérer si seconde url saisie
+- Saisir les paramètres dans un prompt => NASA le paramètre à passer dans l'url est "?$limit=50000"
+- Check le ValueError qui n'est pas dans un bloc except
+- Ajouter un prompt pour demander si l'on continue toutes les 100 pages
 
 ***
 
