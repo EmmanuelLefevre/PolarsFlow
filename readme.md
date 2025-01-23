@@ -5,6 +5,7 @@
 - [PYTHON](#python)
 - [REQUIREMENTS](#requirements)
 - [GETTING STARTED](#getting-started)
+- [TO DO](#to-do)
 
 ## INTRODUCTION
 Dans un monde où les volumes de données augmentent de manière exponentielle, leurs collectes deviennent des enjeux cruciaux. Ce script Python se positionne comme un outil clé dans cette démarche, en automatisant la récupération de données à partir d’une URL (qu’elle provienne d’une API REST ou d’un autre endpoint web) et leur transformation au format Parquet, reconnu pour sa performance en termes de compression et de lecture.  
@@ -84,6 +85,10 @@ URL de test permettant de récupérer mondialement, depuis l'API de la NASA, les
 https://data.nasa.gov/resource/gh4g-9sfh.csv?$limit=50000
 ```
 5. Les fichiers Parquet des exemples ci dessus sont disponibles dans le dossier "data_frame".
+
+## TO DO
+- Utiliser Polars à la place de panda
+- Ajouter un prompt pour utiliser ou pas le token existant
 
 ***
 
