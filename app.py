@@ -369,7 +369,6 @@ def api_call(url=None):
       paginated_url = get_paginated_url(url)
 
       while True:
-        print(f"🔍 Requête vers l'URL => {paginated_url}")
         response = requests.get(paginated_url, headers=headers)
 
         # Response
