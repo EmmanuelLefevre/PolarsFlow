@@ -21,31 +21,7 @@ Les fonctionnalités incluent :
 Cet outil est idéal pour les développeurs, data engineers ou analystes cherchant à automatiser la gestion de leurs flux de données. Il répond particulièrement bien aux besoins des projets nécessitant une gestion performante et évolutive des données tabulaires.
 
 ## PYTHON
-[Télécharger Python 3.13.1](https://www.python.org/downloads/)  
-
-⚠️ "Customize installation"  
-
-Cocher les options =>  
-- "pip"  
-- "tcl/tk and IDLE"  
-- "py launcher"  
-
-![Installation Python 1](https://github.com/EmmanuelLefevre/MarkdownImg/blob/main/py_install.png)  
-
-Puis dans la seconde fenêtre =>  
-- "Associate files with Python"  
-- "Add Python to environment variables".  
-
-![Installation Python 2](https://github.com/EmmanuelLefevre/MarkdownImg/blob/main/py_install_2.png)  
-
-- Vérifier l'installation de Python
-```bash
-python --version
-```
-- Vérifier l'installation de Pip
-```bash
-pip --version
-```
+[Guide d'installation Python](https://github.com/EmmanuelLefevre/Documentations/blob/master/Tutorials/python_install.md)  
 
 ## REQUIREMENTS
 - Colorama

@@ -45,34 +45,62 @@ def leave():
 
 
 
-###################################################
-##### Fonction pour récupérer le secret token #####
-###################################################
+############################################
+##### Fonction pour récupérer le token #####
+############################################
 def get_secret_token(url=None):
   token = os.getenv("SECRET_TOKEN")
 
+  # Token vide
   if token == "":
-    print(f"{Style.BRIGHT}{Fore.RED}💣 Ce token n'a pas de valeur définie !{Style.RESET_ALL}")
+    print(f"{Style.BRIGHT}{Fore.RED}💣 Ce token n'a pas de valeur !{Style.RESET_ALL}")
     set_secret_token(url)
     token = os.getenv("SECRET_TOKEN")
 
-  if not token:
-    print(f"{Style.BRIGHT}{Fore.RED}💣 Aucun token trouvé dans le fichier .env !{Style.RESET_ALL}")
-    response = input("🏁 Avez-vous un token à renseigner ? (O/n/e=enregistrer) : ").strip().lower()
+  # Token valide trouvé
+  if token:
+    print(f"{Style.BRIGHT}{Fore.GREEN}🔑 Token existant détecté !{Style.RESET_ALL}")
+    response = input(f"🏁 Souhaitez-vous utiliser ce token ? (O/n/a=autre) : ").strip().lower()
 
-    if response == "e":
-      set_secret_token(url)
-      token = os.getenv("SECRET_TOKEN")
+    # Utiliser token existant
+    if response in ["o", ""]:
+      print(f"{Style.BRIGHT}{Fore.GREEN}✅ Utilisation du token existant.{Style.RESET_ALL}")
+      return token
 
-    elif response in ["o", ""]:
-      token = input("💬 Entrez votre token : ").strip()
+    # Utiliser un autre token
+    elif response == "a":
+      other_token = input("💬 Entrez un autre token : ").strip()
+      if other_token:
+        print(f"{Style.BRIGHT}{Fore.GREEN}✅ Utilisation du token alternatif.{Style.RESET_ALL}")
+        return other_token
+      else:
+        print(f"{Style.BRIGHT}{Fore.YELLOW}❌ Aucun token alternatif fourni. Aucun token ne sera utilisé dans la requête !{Style.RESET_ALL}")
+        return None
+    # Pas de token utilisé
+    else:
+      print(f"{Style.BRIGHT}{Fore.YELLOW}❌ Le token ne sera pas utilisé dans la requête...{Style.RESET_ALL}")
+      return None
 
-  return token
+  # Aucun token défini
+  print(f"{Style.BRIGHT}{Fore.RED}💣 Aucun token trouvé dans le fichier .env !{Style.RESET_ALL}")
+  response = input("🏁 Avez-vous un token à renseigner ? (O/n/e=enregistrer) : ").strip().lower()
+
+  # Enregistrer un nouveau token
+  if response == "e":
+    set_secret_token(url)
+    token = os.getenv("SECRET_TOKEN")
+
+  elif response in ["o", ""]:
+    token = input("💬 Entrez votre token : ").strip()
+
+  # Retourner le token ou None si aucun n'est fourni
+  return token if token else None
 
 
-####################################################
-##### Fonction pour renseigner un secret token #####
-####################################################
+
+##############################################
+##### Fonction pour enregistrer un token #####
+##############################################
 def set_secret_token(url=None):
   global last_url
   last_url = url
@@ -366,6 +394,7 @@ def api_call(url=None):
       paginated_url = get_paginated_url(url)
 
       while True:
+        # print(f"🔍 Requête vers l'URL => {paginated_url}")
         response = requests.get(paginated_url, headers=headers)
 
         # Response
